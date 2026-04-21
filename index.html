@@ -1,670 +1,720 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>CodeNova – نتعلم سوا</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet"/>
-  <style>
-    :root {
-      --bg: #080b12;
-      --surface: #0d1117;
-      --card: #111827;
-      --border: #1f2937;
-      --accent: #00f5d4;
-      --accent2: #7c3aed;
-      --accent3: #f59e0b;
-      --text: #e2e8f0;
-      --muted: #64748b;
-      --glow: rgba(0,245,212,0.15);
-    }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CodeNova</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#080b12;--surface:#0d1117;--card:#111827;
+  --border:#1f2937;--border2:#374151;
+  --accent:#00f5d4;--accent2:#7c3aed;--accent3:#f59e0b;
+  --text:#e2e8f0;--muted:#64748b;--danger:#ef4444;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;}
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+/* noise */
+body::after{content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:9999;opacity:.35;}
 
-    html { scroll-behavior: smooth; }
+/* ── LOADER ── */
+#loader{position:fixed;inset:0;background:var(--bg);z-index:800;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
+.loader-logo{font-family:'Space Mono',monospace;font-size:2rem;color:var(--accent);}
+.loader-logo span{color:var(--accent2);}
+.loader-bar{width:180px;height:3px;background:var(--border);border-radius:999px;overflow:hidden;}
+.loader-fill{height:100%;width:40%;background:var(--accent);border-radius:999px;animation:loading 1.2s ease-in-out infinite;}
+@keyframes loading{0%{transform:translateX(-100%)}100%{transform:translateX(350%)}}
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Cairo', sans-serif;
-      overflow-x: hidden;
-    }
+/* ── LOGIN ── */
+#loginPage{position:fixed;inset:0;z-index:500;display:none;
+  align-items:center;justify-content:center;background:var(--bg);}
+.login-box{width:100%;max-width:420px;padding:24px;animation:fadeUp .5s ease both;}
+.login-logo{font-family:'Space Mono',monospace;font-size:1.8rem;color:var(--accent);
+  text-align:center;margin-bottom:4px;letter-spacing:-1px;}
+.login-logo span{color:var(--accent2);}
+.login-sub{text-align:center;color:var(--muted);font-size:.88rem;margin-bottom:28px;}
+.login-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px;}
+.tab-row{display:flex;margin-bottom:24px;border-radius:10px;overflow:hidden;border:1px solid var(--border);}
+.tab-btn{flex:1;padding:10px;background:transparent;border:none;color:var(--muted);
+  font-family:'Cairo',sans-serif;font-size:.9rem;cursor:pointer;transition:.2s;}
+.tab-btn.active{background:var(--accent);color:#080b12;font-weight:700;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:.78rem;color:var(--muted);margin-bottom:5px;font-family:'Space Mono',monospace;}
+.field input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:11px 14px;color:var(--text);font-family:'Cairo',sans-serif;font-size:.93rem;outline:none;transition:.2s;}
+.field input:focus{border-color:var(--accent);}
+.btn-main{width:100%;padding:13px;background:var(--accent);color:#080b12;border:none;border-radius:10px;
+  font-family:'Cairo',sans-serif;font-weight:700;font-size:.95rem;cursor:pointer;margin-top:6px;transition:.2s;}
+.btn-main:hover{transform:translateY(-1px);box-shadow:0 0 20px rgba(0,245,212,.35);}
+.auth-err{color:var(--danger);font-size:.8rem;text-align:center;margin-top:8px;min-height:16px;}
 
-    /* ── Noise overlay ── */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 0;
-      opacity: 0.4;
-    }
+/* ── APP ── */
+#app{display:none;height:100vh;flex-direction:column;}
 
-    /* ── Ambient orbs ── */
-    .orb {
-      position: fixed;
-      border-radius: 50%;
-      filter: blur(120px);
-      pointer-events: none;
-      z-index: 0;
-    }
-    .orb-1 { width: 500px; height: 500px; background: rgba(0,245,212,0.07); top: -150px; right: -100px; animation: drift 12s ease-in-out infinite alternate; }
-    .orb-2 { width: 400px; height: 400px; background: rgba(124,58,237,0.08); bottom: 100px; left: -100px; animation: drift 15s ease-in-out infinite alternate-reverse; }
-    .orb-3 { width: 300px; height: 300px; background: rgba(245,158,11,0.05); top: 50%; left: 50%; animation: drift 10s ease-in-out infinite alternate; }
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;
+  padding:0 18px;height:52px;min-height:52px;
+  background:rgba(8,11,18,.92);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);z-index:50;flex-shrink:0;}
+.topbar-logo{font-family:'Space Mono',monospace;font-size:1.1rem;color:var(--accent);letter-spacing:-1px;}
+.topbar-logo span{color:var(--accent2);}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.user-pill{display:flex;align-items:center;gap:7px;background:var(--card);
+  border:1px solid var(--border);border-radius:999px;padding:4px 12px 4px 6px;}
+.av{width:26px;height:26px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:.68rem;font-weight:700;color:#080b12;font-family:'Space Mono',monospace;flex-shrink:0;}
+.user-name-top{font-size:.83rem;font-weight:600;}
 
-    @keyframes drift { from { transform: translate(0,0) scale(1); } to { transform: translate(40px, 30px) scale(1.1); } }
+/* HAMBURGER */
+.hamburger{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);
+  background:var(--card);cursor:pointer;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:5px;transition:.2s;position:relative;}
+.hamburger:hover{border-color:var(--accent);}
+.hamburger .bar{width:16px;height:2px;background:var(--text);border-radius:2px;transition:.3s;}
+.hamburger.open .bar:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.open .bar:nth-child(2){opacity:0;}
+.hamburger.open .bar:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
 
-    /* ── Nav ── */
-    nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 18px 48px;
-      background: rgba(8,11,18,0.85);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border);
-    }
+/* DRAWER */
+.drawer{position:fixed;top:52px;left:0;width:240px;height:calc(100vh - 52px);
+  background:var(--surface);border-left:1px solid var(--border);
+  z-index:40;transform:translateX(-100%);transition:transform .28s ease;
+  display:flex;flex-direction:column;padding:16px 0;}
+.drawer.open{transform:translateX(0);}
+.drawer-overlay{position:fixed;inset:0;top:52px;background:rgba(0,0,0,.5);
+  z-index:39;display:none;}
+.drawer-overlay.open{display:block;}
+.drawer-section{padding:8px 16px;font-family:'Space Mono',monospace;font-size:.68rem;
+  color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:8px;}
+.drawer-item{display:flex;align-items:center;gap:10px;padding:11px 20px;
+  cursor:pointer;transition:.2s;font-size:.9rem;color:var(--muted);border:none;
+  background:transparent;width:100%;font-family:'Cairo',sans-serif;text-align:right;}
+.drawer-item:hover,.drawer-item.active{background:rgba(0,245,212,.07);color:var(--accent);}
+.drawer-item.active{border-left:none;border-right:3px solid var(--accent);}
+.drawer-item .di{font-size:1rem;width:20px;text-align:center;}
+.drawer-divider{height:1px;background:var(--border);margin:8px 16px;}
+.drawer-logout{margin-top:auto;padding:12px 20px;display:flex;align-items:center;gap:10px;
+  cursor:pointer;color:var(--danger);font-size:.88rem;font-family:'Cairo',sans-serif;
+  border:none;background:transparent;width:100%;transition:.2s;}
+.drawer-logout:hover{background:rgba(239,68,68,.07);}
 
-    .nav-logo {
-      font-family: 'Space Mono', monospace;
-      font-size: 1.3rem;
-      color: var(--accent);
-      letter-spacing: -1px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+/* PAGES */
+.main-content{flex:1;overflow:hidden;display:flex;position:relative;}
+.page{display:none;width:100%;height:100%;overflow:hidden;}
+.page.active{display:flex;}
 
-    .nav-logo .bracket { color: var(--accent2); }
+/* ══ CHAT ══ */
+#chatPage{flex-direction:column;}
+.chat-header{padding:12px 18px;border-bottom:1px solid var(--border);
+  background:var(--surface);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;}
+.chat-header-title{font-weight:700;font-size:.95rem;display:flex;align-items:center;gap:8px;}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;}
+.chat-messages::-webkit-scrollbar{width:3px;}
+.chat-messages::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
 
-    .nav-links { display: flex; gap: 32px; list-style: none; }
-    .nav-links a {
-      color: var(--muted);
-      text-decoration: none;
-      font-size: 0.9rem;
-      transition: color 0.2s;
-    }
-    .nav-links a:hover { color: var(--accent); }
+.sys-msg{text-align:center;color:var(--muted);font-size:.75rem;
+  font-family:'Space Mono',monospace;padding:4px 0;}
+.msg{display:flex;gap:8px;align-items:flex-end;animation:msgIn .2s ease;}
+@keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.msg.own{flex-direction:row-reverse;}
+.msg-av{width:28px;height:28px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--accent2),var(--accent));
+  display:flex;align-items:center;justify-content:center;
+  font-size:.65rem;font-weight:700;color:#fff;font-family:'Space Mono',monospace;}
+.msg-bubble{max-width:68%;background:var(--card);border:1px solid var(--border);
+  border-radius:16px 16px 16px 4px;padding:9px 13px;}
+.msg.own .msg-bubble{background:rgba(0,245,212,.09);border-color:rgba(0,245,212,.22);
+  border-radius:16px 16px 4px 16px;}
+.msg-sender{font-size:.7rem;color:var(--accent);font-weight:700;margin-bottom:3px;
+  font-family:'Space Mono',monospace;}
+.msg-text{font-size:.88rem;line-height:1.5;word-break:break-word;}
+.msg-time{font-size:.65rem;color:var(--muted);margin-top:3px;font-family:'Space Mono',monospace;}
+.msg.own .msg-time{text-align:left;}
 
-    /* ── Hero ── */
-    .hero {
-      position: relative;
-      z-index: 1;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 120px 24px 80px;
-    }
+.chat-input-row{padding:12px 16px;border-top:1px solid var(--border);
+  background:var(--surface);display:flex;gap:8px;flex-shrink:0;align-items:flex-end;}
+.chat-input{flex:1;background:var(--card);border:1px solid var(--border);
+  border-radius:12px;padding:10px 14px;color:var(--text);
+  font-family:'Cairo',sans-serif;font-size:.88rem;outline:none;
+  transition:.2s;resize:none;min-height:42px;max-height:110px;}
+.chat-input:focus{border-color:var(--accent);}
+.send-btn{width:42px;height:42px;border-radius:12px;border:none;
+  background:var(--accent);color:#080b12;cursor:pointer;font-size:1rem;
+  display:flex;align-items:center;justify-content:center;transition:.2s;flex-shrink:0;}
+.send-btn:hover{transform:scale(1.06);box-shadow:0 0 14px rgba(0,245,212,.4);}
+.send-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
 
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(0,245,212,0.08);
-      border: 1px solid rgba(0,245,212,0.25);
-      border-radius: 999px;
-      padding: 6px 18px;
-      font-size: 0.8rem;
-      color: var(--accent);
-      margin-bottom: 32px;
-      animation: fadeUp 0.8s ease both;
-      font-family: 'Space Mono', monospace;
-    }
+/* ══ LINKS ══ */
+#linksPage{flex-direction:column;overflow-y:auto;}
+.page-inner{padding:20px;max-width:860px;width:100%;margin:0 auto;}
+.page-h{margin-bottom:20px;}
+.page-h h2{font-size:1.3rem;font-weight:900;margin-bottom:3px;}
+.page-h p{color:var(--muted);font-size:.85rem;}
 
-    .hero-badge::before { content: '◉'; font-size: 0.6rem; animation: pulse 2s infinite; }
-    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+.add-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:20px;}
+.add-card-title{font-size:.78rem;font-family:'Space Mono',monospace;color:var(--accent);margin-bottom:12px;}
+.inp-grid{display:grid;grid-template-columns:1fr 80px;gap:8px;margin-bottom:8px;}
+.inp-full{margin-bottom:8px;}
+.inp-full input,.inp-grid input{width:100%;background:var(--surface);border:1px solid var(--border);
+  border-radius:9px;padding:9px 13px;color:var(--text);
+  font-family:'Cairo',sans-serif;font-size:.86rem;outline:none;transition:.2s;}
+.inp-full input:focus,.inp-grid input:focus{border-color:var(--accent);}
+.cat-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.cat-chip{padding:4px 13px;border-radius:999px;border:1px solid var(--border);
+  background:transparent;color:var(--muted);font-size:.76rem;cursor:pointer;transition:.2s;font-family:'Cairo',sans-serif;}
+.cat-chip.sel,.cat-chip:hover{border-color:var(--accent);color:var(--accent);background:rgba(0,245,212,.07);}
+.btn-add{padding:9px 22px;background:var(--accent);color:#080b12;border:none;
+  border-radius:9px;font-family:'Cairo',sans-serif;font-weight:700;font-size:.86rem;cursor:pointer;transition:.2s;}
+.btn-add:hover{transform:translateY(-1px);box-shadow:0 0 14px rgba(0,245,212,.3);}
+.btn-add:disabled{opacity:.5;cursor:not-allowed;transform:none;}
 
-    .hero-title {
-      font-size: clamp(3rem, 10vw, 7rem);
-      font-weight: 900;
-      line-height: 1;
-      margin-bottom: 24px;
-      animation: fadeUp 0.9s ease 0.1s both;
-    }
+.filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;}
+.f-chip{padding:5px 14px;border-radius:999px;border:1px solid var(--border);
+  background:transparent;color:var(--muted);font-size:.78rem;cursor:pointer;transition:.2s;font-family:'Cairo',sans-serif;}
+.f-chip.active,.f-chip:hover{border-color:var(--accent);color:var(--accent);background:rgba(0,245,212,.07);}
 
-    .hero-title .cn {
-      font-family: 'Space Mono', monospace;
-      background: linear-gradient(135deg, var(--accent) 0%, #00b4d8 50%, var(--accent2) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      display: block;
-      letter-spacing: -3px;
-    }
+.links-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:12px;}
+.link-card{background:var(--card);border:1px solid var(--border);border-radius:13px;
+  padding:16px;transition:.22s;display:flex;flex-direction:column;gap:8px;position:relative;}
+.link-card:hover{border-color:rgba(0,245,212,.28);transform:translateY(-2px);}
+.lc-top{display:flex;align-items:center;gap:9px;}
+.lc-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;
+  justify-content:center;font-size:1rem;flex-shrink:0;}
+.lc-title{font-weight:700;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.lc-cat{font-size:.7rem;font-family:'Space Mono',monospace;margin-top:1px;}
+.lc-desc{color:var(--muted);font-size:.8rem;line-height:1.5;}
+.lc-foot{display:flex;align-items:center;justify-content:space-between;}
+.lc-by{font-size:.7rem;color:var(--muted);}
+.lc-open{padding:5px 12px;border-radius:7px;background:rgba(0,245,212,.09);
+  border:1px solid rgba(0,245,212,.22);color:var(--accent);
+  font-size:.76rem;font-family:'Cairo',sans-serif;cursor:pointer;text-decoration:none;transition:.2s;}
+.lc-open:hover{background:rgba(0,245,212,.18);}
+.lc-del{position:absolute;top:9px;left:11px;background:transparent;border:none;
+  color:var(--border2);cursor:pointer;font-size:.82rem;transition:.2s;}
+.lc-del:hover{color:var(--danger);}
 
-    .hero-title .ar {
-      font-size: clamp(1.2rem, 3vw, 2rem);
-      font-weight: 600;
-      color: var(--muted);
-      display: block;
-      margin-top: 8px;
-      font-family: 'Cairo', sans-serif;
-      -webkit-text-fill-color: var(--muted);
-      letter-spacing: 0;
-    }
+/* ══ MEMBERS ══ */
+#membersPage{flex-direction:column;overflow-y:auto;}
+.members-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:12px;margin-top:20px;}
+.member-card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:22px 14px;text-align:center;transition:.22s;}
+.member-card:hover{border-color:rgba(0,245,212,.25);transform:translateY(-2px);}
+.mem-av{width:50px;height:50px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;font-weight:700;color:#080b12;
+  font-family:'Space Mono',monospace;margin:0 auto 10px;}
+.mem-name{font-weight:700;font-size:.95rem;margin-bottom:3px;}
+.mem-role{font-size:.72rem;font-family:'Space Mono',monospace;color:var(--muted);}
+.mem-joined{font-size:.7rem;color:var(--muted);margin-top:5px;}
 
-    .hero-desc {
-      max-width: 600px;
-      color: var(--muted);
-      font-size: 1.1rem;
-      line-height: 1.8;
-      margin-bottom: 48px;
-      animation: fadeUp 1s ease 0.2s both;
-    }
+/* empty */
+.empty{text-align:center;padding:50px 20px;color:var(--muted);}
+.empty .emo{font-size:2.2rem;display:block;margin-bottom:10px;}
+.empty p{font-size:.88rem;line-height:1.6;}
 
-    .hero-cta {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-      justify-content: center;
-      animation: fadeUp 1s ease 0.3s both;
-    }
+/* loading spinner */
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(0,245,212,.3);
+  border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin-left:6px;}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-    .btn-primary {
-      background: var(--accent);
-      color: #080b12;
-      border: none;
-      padding: 14px 32px;
-      border-radius: 8px;
-      font-family: 'Cairo', sans-serif;
-      font-weight: 700;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-      text-decoration: none;
-    }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(0,245,212,0.4); }
+/* scrollbar */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+::-webkit-scrollbar-track{background:transparent;}
 
-    .btn-ghost {
-      background: transparent;
-      color: var(--text);
-      border: 1px solid var(--border);
-      padding: 14px 32px;
-      border-radius: 8px;
-      font-family: 'Cairo', sans-serif;
-      font-weight: 600;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: border-color 0.2s, color 0.2s;
-      text-decoration: none;
-    }
-    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+/* anims */
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
 
-    /* ── Scroll indicator ── */
-    .scroll-hint {
-      position: absolute;
-      bottom: 32px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-      color: var(--muted);
-      font-size: 0.75rem;
-      animation: fadeUp 1s ease 0.6s both;
-    }
-    .scroll-hint .arrow { animation: bounce 1.8s infinite; }
-    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
-
-    /* ── Sections ── */
-    section { position: relative; z-index: 1; }
-
-    .section-label {
-      font-family: 'Space Mono', monospace;
-      font-size: 0.75rem;
-      color: var(--accent);
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-    }
-
-    .section-title {
-      font-size: clamp(1.8rem, 4vw, 2.8rem);
-      font-weight: 900;
-      margin-bottom: 16px;
-      line-height: 1.2;
-    }
-
-    .section-sub {
-      color: var(--muted);
-      font-size: 1rem;
-      line-height: 1.7;
-      max-width: 500px;
-    }
-
-    /* ── Roadmap ── */
-    #roadmap {
-      padding: 100px 48px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .roadmap-header { margin-bottom: 64px; }
-
-    .roadmap-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-    }
-
-    .phase-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 32px;
-      position: relative;
-      overflow: hidden;
-      transition: transform 0.3s, border-color 0.3s;
-      cursor: default;
-    }
-    .phase-card:hover { transform: translateY(-4px); border-color: var(--accent); }
-    .phase-card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, var(--glow), transparent);
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    .phase-card:hover::before { opacity: 1; }
-
-    .phase-num {
-      font-family: 'Space Mono', monospace;
-      font-size: 3rem;
-      font-weight: 700;
-      color: var(--border);
-      line-height: 1;
-      margin-bottom: 16px;
-    }
-    .phase-card:hover .phase-num { color: rgba(0,245,212,0.15); }
-
-    .phase-tag {
-      display: inline-block;
-      font-size: 0.72rem;
-      padding: 3px 12px;
-      border-radius: 999px;
-      margin-bottom: 12px;
-      font-family: 'Space Mono', monospace;
-    }
-    .tag-active { background: rgba(0,245,212,0.1); color: var(--accent); border: 1px solid rgba(0,245,212,0.3); }
-    .tag-next { background: rgba(124,58,237,0.1); color: #a78bfa; border: 1px solid rgba(124,58,237,0.3); }
-    .tag-soon { background: rgba(100,116,139,0.1); color: var(--muted); border: 1px solid var(--border); }
-
-    .phase-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 8px; }
-    .phase-desc { color: var(--muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 16px; }
-
-    .phase-topics { display: flex; flex-wrap: wrap; gap: 6px; }
-    .topic-chip {
-      font-size: 0.75rem;
-      padding: 4px 10px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--muted);
-      font-family: 'Space Mono', monospace;
-    }
-
-    /* ── Stats bar ── */
-    .stats-bar {
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      padding: 48px;
-      display: flex;
-      justify-content: center;
-      gap: 80px;
-      flex-wrap: wrap;
-    }
-
-    .stat { text-align: center; }
-    .stat-num {
-      font-family: 'Space Mono', monospace;
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: var(--accent);
-      display: block;
-    }
-    .stat-label { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
-
-    /* ── Values ── */
-    #values {
-      padding: 100px 48px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .values-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 24px;
-      margin-top: 64px;
-    }
-
-    .value-card {
-      padding: 32px;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      background: linear-gradient(135deg, var(--card), var(--surface));
-      transition: transform 0.3s;
-    }
-    .value-card:hover { transform: translateY(-3px); }
-
-    .value-icon { font-size: 2rem; margin-bottom: 16px; display: block; }
-    .value-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
-    .value-desc { color: var(--muted); font-size: 0.9rem; line-height: 1.6; }
-
-    /* ── CTA section ── */
-    #join {
-      padding: 120px 48px;
-      text-align: center;
-      max-width: 700px;
-      margin: 0 auto;
-    }
-
-    .cta-box {
-      background: linear-gradient(135deg, rgba(0,245,212,0.05), rgba(124,58,237,0.05));
-      border: 1px solid rgba(0,245,212,0.2);
-      border-radius: 24px;
-      padding: 64px 48px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .cta-box::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 300px;
-      height: 300px;
-      background: radial-gradient(circle, rgba(0,245,212,0.08), transparent 70%);
-    }
-
-    .cta-title { font-size: 2rem; font-weight: 900; margin-bottom: 16px; }
-    .cta-desc { color: var(--muted); margin-bottom: 36px; line-height: 1.7; }
-
-    /* ── Footer ── */
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 32px 48px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: gap;
-      color: var(--muted);
-      font-size: 0.85rem;
-      position: relative;
-      z-index: 1;
-    }
-
-    .footer-logo {
-      font-family: 'Space Mono', monospace;
-      color: var(--accent);
-      font-size: 1rem;
-    }
-
-    /* ── Terminal widget ── */
-    .terminal {
-      background: #0a0d14;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px 24px;
-      font-family: 'Space Mono', monospace;
-      font-size: 0.82rem;
-      color: #a3e635;
-      margin: 48px auto 0;
-      max-width: 500px;
-      text-align: left;
-      direction: ltr;
-    }
-    .terminal .line { margin-bottom: 6px; }
-    .terminal .prompt { color: var(--accent); }
-    .terminal .comment { color: var(--muted); }
-    .terminal .keyword { color: #c084fc; }
-    .terminal .string { color: #fbbf24; }
-    .terminal .cursor {
-      display: inline-block;
-      width: 8px;
-      height: 14px;
-      background: var(--accent);
-      animation: blink 1s infinite;
-      vertical-align: middle;
-    }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-
-    /* ── Animations ── */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(24px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .reveal {
-      opacity: 0;
-      transform: translateY(30px);
-      transition: opacity 0.7s ease, transform 0.7s ease;
-    }
-    .reveal.visible { opacity: 1; transform: translateY(0); }
-
-    /* ── Responsive ── */
-    @media (max-width: 768px) {
-      nav { padding: 16px 24px; }
-      .nav-links { display: none; }
-      #roadmap, #values, #join { padding: 64px 24px; }
-      .stats-bar { gap: 40px; padding: 40px 24px; }
-      footer { flex-direction: column; gap: 12px; text-align: center; }
-      .cta-box { padding: 40px 24px; }
-    }
-  </style>
+@media(max-width:600px){
+  .inp-grid{grid-template-columns:1fr;}
+  .links-grid{grid-template-columns:1fr;}
+  .drawer{width:220px;}
+}
+</style>
 </head>
 <body>
 
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
-  <div class="orb orb-3"></div>
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-logo"><span>[</span>CodeNova<span>]</span></div>
+  <div class="loader-bar"><div class="loader-fill"></div></div>
+</div>
 
-  <!-- NAV -->
-  <nav>
-    <div class="nav-logo">
-      <span class="bracket">[</span>CodeNova<span class="bracket">]</span>
+<!-- LOGIN -->
+<div id="loginPage" style="display:none;">
+  <div class="login-box">
+    <div class="login-logo"><span>[</span>CodeNova<span>]</span></div>
+    <div class="login-sub">فريق التعلم التقني · نتعلم سوا 🚀</div>
+    <div class="login-card">
+      <div class="tab-row">
+        <button class="tab-btn active" onclick="switchTab('login')">دخول</button>
+        <button class="tab-btn" onclick="switchTab('register')">تسجيل جديد</button>
+      </div>
+      <!-- Login -->
+      <div id="loginForm">
+        <div class="field"><label>// الاسم</label>
+          <input id="lName" type="text" placeholder="اسمك في التيم" autocomplete="off"/></div>
+        <div class="field"><label>// كلمة المرور</label>
+          <input id="lPass" type="password" placeholder="••••••"/></div>
+        <button class="btn-main" id="loginBtn" onclick="doLogin()">ادخل للتيم ←</button>
+        <div class="auth-err" id="lErr"></div>
+      </div>
+      <!-- Register -->
+      <div id="registerForm" style="display:none">
+        <div class="field"><label>// الاسم</label>
+          <input id="rName" type="text" placeholder="اختار اسمك" autocomplete="off"/></div>
+        <div class="field"><label>// كلمة المرور</label>
+          <input id="rPass" type="password" placeholder="4 أحرف على الأقل"/></div>
+        <div class="field"><label>// تأكيد كلمة المرور</label>
+          <input id="rPass2" type="password" placeholder="كرر كلمة المرور"/></div>
+        <button class="btn-main" id="regBtn" onclick="doRegister()">سجّل وادخل ←</button>
+        <div class="auth-err" id="rErr"></div>
+      </div>
     </div>
-    <ul class="nav-links">
-      <li><a href="#roadmap">الخارطة</a></li>
-      <li><a href="#values">قيمنا</a></li>
-      <li><a href="#join">انضم</a></li>
-    </ul>
-  </nav>
+  </div>
+</div>
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-badge">نتعلم سوا · نتقدم سوا</div>
+<!-- APP -->
+<div id="app" style="display:none;flex-direction:column;height:100vh;">
 
-    <h1 class="hero-title">
-      <span class="cn">CodeNova</span>
-      <span class="ar">فريق تعلّم تقني حقيقي</span>
-    </h1>
-
-    <p class="hero-desc">
-      من Python الأساسيات، لـ Algorithms، لـ Machine Learning —
-      رحلة واحدة، فريق واحد، بنبني المستقبل سوا.
-    </p>
-
-    <div class="hero-cta">
-      <a href="#roadmap" class="btn-primary">شوف الخارطة</a>
-      <a href="#join" class="btn-ghost">انضم للتيم</a>
-    </div>
-
-    <!-- Terminal widget -->
-    <div class="terminal">
-      <div class="line"><span class="prompt">$</span> python hello_codenova.py</div>
-      <div class="line"><span class="comment"># Welcome to the team 🚀</span></div>
-      <div class="line"><span class="keyword">print</span>(<span class="string">"نتعلم سوا، ننجح سوا"</span>)</div>
-      <div class="line" style="color:#e2e8f0; margin-top:4px;">→ نتعلم سوا، ننجح سوا <span class="cursor"></span></div>
-    </div>
-
-    <div class="scroll-hint">
-      <span>اكتشف أكثر</span>
-      <span class="arrow">↓</span>
-    </div>
-  </section>
-
-  <!-- STATS -->
-  <div class="stats-bar reveal">
-    <div class="stat">
-      <span class="stat-num">6+</span>
-      <span class="stat-label">مراحل تعلّم</span>
-    </div>
-    <div class="stat">
-      <span class="stat-num">∞</span>
-      <span class="stat-label">مشاريع مشتركة</span>
-    </div>
-    <div class="stat">
-      <span class="stat-num">1</span>
-      <span class="stat-label">هدف: الذكاء الاصطناعي</span>
-    </div>
-    <div class="stat">
-      <span class="stat-num">100%</span>
-      <span class="stat-label">تعلّم جماعي</span>
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-logo"><span>[</span>CodeNova<span>]</span></div>
+    <div class="topbar-right">
+      <div class="user-pill">
+        <div class="av" id="topAv">?</div>
+        <span class="user-name-top" id="topName">...</span>
+      </div>
+      <div class="hamburger" id="hamburger" onclick="toggleDrawer()">
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      </div>
     </div>
   </div>
 
-  <!-- ROADMAP -->
-  <section id="roadmap">
-    <div class="roadmap-header reveal">
-      <div class="section-label">// roadmap</div>
-      <h2 class="section-title">خارطة الرحلة</h2>
-      <p class="section-sub">مسار واضح من الصفر لحتى نوصل لـ Machine Learning خطوة بخطوة.</p>
+  <!-- Drawer overlay -->
+  <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+
+  <!-- Drawer -->
+  <div class="drawer" id="drawer">
+    <div class="drawer-section">// القائمة</div>
+    <button class="drawer-item active" id="di-chat" onclick="showPage('chat')">
+      <span class="di">💬</span> دردشة التيم
+    </button>
+    <button class="drawer-item" id="di-links" onclick="showPage('links')">
+      <span class="di">🔗</span> الروابط المهمة
+    </button>
+    <button class="drawer-item" id="di-members" onclick="showPage('members')">
+      <span class="di">👥</span> الأعضاء
+    </button>
+    <div class="drawer-divider"></div>
+    <button class="drawer-logout" onclick="doLogout()">
+      <span>⇠</span> تسجيل الخروج
+    </button>
+  </div>
+
+  <!-- Main -->
+  <div class="main-content">
+
+    <!-- CHAT -->
+    <div class="page active" id="chatPage">
+      <div class="chat-header">
+        <div class="chat-header-title">
+          <div class="live-dot"></div> دردشة التيم — Real-time
+        </div>
+        <span style="font-size:.72rem;font-family:'Space Mono',monospace;color:var(--muted);">Firebase 🔥</span>
+      </div>
+      <div class="chat-messages" id="chatMessages">
+        <div class="sys-msg">جار التحميل...</div>
+      </div>
+      <div class="chat-input-row">
+        <textarea class="chat-input" id="chatInput" placeholder="اكتب رسالتك..." rows="1"
+          onkeydown="chatKey(event)" oninput="autoGrow(this)"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendMsg()">↑</button>
+      </div>
     </div>
 
-    <div class="roadmap-grid">
-      <div class="phase-card reveal">
-        <div class="phase-num">01</div>
-        <span class="phase-tag tag-active">▶ الآن</span>
-        <div class="phase-title">Python من الصفر</div>
-        <div class="phase-desc">نبدأ من المتغيرات لحتى نحكم الأساسيات كلها بشكل صح.</div>
-        <div class="phase-topics">
-          <span class="topic-chip">Variables</span>
-          <span class="topic-chip">Loops</span>
-          <span class="topic-chip">Functions</span>
-          <span class="topic-chip">Lists</span>
-          <span class="topic-chip">Dicts</span>
+    <!-- LINKS -->
+    <div class="page" id="linksPage">
+      <div class="page-inner">
+        <div class="page-h">
+          <h2>🔗 الروابط المهمة</h2>
+          <p>شاركوا الروابط المفيدة — محفوظة في Firebase</p>
+        </div>
+
+        <div class="add-card">
+          <div class="add-card-title">// أضف رابط جديد</div>
+          <div class="inp-grid">
+            <input id="lkTitle" type="text" placeholder="عنوان الرابط"/>
+            <input id="lkEmoji" type="text" placeholder="🔗 إيموجي"/>
+          </div>
+          <div class="inp-full"><input id="lkUrl" type="url" placeholder="https://..."/></div>
+          <div class="inp-full"><input id="lkDesc" type="text" placeholder="وصف قصير (اختياري)"/></div>
+          <div class="cat-row" id="catRow">
+            <button class="cat-chip sel" onclick="selCat(this,'Python')">🐍 Python</button>
+            <button class="cat-chip" onclick="selCat(this,'Git')">🌿 Git</button>
+            <button class="cat-chip" onclick="selCat(this,'CS50')">🎓 CS50</button>
+            <button class="cat-chip" onclick="selCat(this,'ML')">🤖 ML</button>
+            <button class="cat-chip" onclick="selCat(this,'أدوات')">🛠️ أدوات</button>
+            <button class="cat-chip" onclick="selCat(this,'أخرى')">📌 أخرى</button>
+          </div>
+          <button class="btn-add" id="addLinkBtn" onclick="addLink()">+ أضف الرابط</button>
+        </div>
+
+        <div class="filter-row" id="filterRow">
+          <button class="f-chip active" onclick="filterLinks('all',this)">الكل</button>
+          <button class="f-chip" onclick="filterLinks('Python',this)">🐍 Python</button>
+          <button class="f-chip" onclick="filterLinks('Git',this)">🌿 Git</button>
+          <button class="f-chip" onclick="filterLinks('CS50',this)">🎓 CS50</button>
+          <button class="f-chip" onclick="filterLinks('ML',this)">🤖 ML</button>
+          <button class="f-chip" onclick="filterLinks('أدوات',this)">🛠️ أدوات</button>
+          <button class="f-chip" onclick="filterLinks('أخرى',this)">📌 أخرى</button>
+        </div>
+
+        <div class="links-grid" id="linksGrid">
+          <div class="empty"><span class="emo">⏳</span><p>جار تحميل الروابط...</p></div>
         </div>
       </div>
+    </div>
 
-      <div class="phase-card reveal">
-        <div class="phase-num">02</div>
-        <span class="phase-tag tag-next">⏳ قريبًا</span>
-        <div class="phase-title">OOP و Git</div>
-        <div class="phase-desc">نفهم البرمجة الكائنية ونتعلم كيف نشتغل بـ Team بشكل احترافي.</div>
-        <div class="phase-topics">
-          <span class="topic-chip">Classes</span>
-          <span class="topic-chip">Inheritance</span>
-          <span class="topic-chip">Git</span>
-          <span class="topic-chip">GitHub</span>
+    <!-- MEMBERS -->
+    <div class="page" id="membersPage">
+      <div class="page-inner">
+        <div class="page-h">
+          <h2>👥 أعضاء التيم</h2>
+          <p>كل من سجّل في CodeNova</p>
         </div>
-      </div>
-
-      <div class="phase-card reveal">
-        <div class="phase-num">03</div>
-        <span class="phase-tag tag-soon">○ لاحقًا</span>
-        <div class="phase-title">CS50 و Algorithms</div>
-        <div class="phase-desc">نفهم علوم الكمبيوتر الحقيقية — الذاكرة، البحث، الترتيب، والتعقيد.</div>
-        <div class="phase-topics">
-          <span class="topic-chip">CS50</span>
-          <span class="topic-chip">Big O</span>
-          <span class="topic-chip">Sorting</span>
-          <span class="topic-chip">Trees</span>
-        </div>
-      </div>
-
-      <div class="phase-card reveal" style="border-color: rgba(245,158,11,0.2);">
-        <div class="phase-num">04</div>
-        <span class="phase-tag" style="background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);">🔥 الهدف الكبير</span>
-        <div class="phase-title">Machine Learning</div>
-        <div class="phase-desc">الوجهة النهائية — نبني نماذج ذكاء اصطناعي حقيقية مع بعض.</div>
-        <div class="phase-topics">
-          <span class="topic-chip">NumPy</span>
-          <span class="topic-chip">Pandas</span>
-          <span class="topic-chip">sklearn</span>
-          <span class="topic-chip">Neural Nets</span>
+        <div class="members-grid" id="membersGrid">
+          <div class="empty"><span class="emo">⏳</span><p>جار التحميل...</p></div>
         </div>
       </div>
     </div>
-  </section>
 
-  <!-- VALUES -->
-  <section id="values">
-    <div class="reveal">
-      <div class="section-label">// values</div>
-      <h2 class="section-title">ليش CodeNova مختلفة؟</h2>
-      <p class="section-sub">مش بس تعلم — بناء ثقافة وعقلية صح من البداية.</p>
-    </div>
+  </div>
+</div>
 
-    <div class="values-grid">
-      <div class="value-card reveal">
-        <span class="value-icon">🤝</span>
-        <div class="value-title">نتعلم سوا</div>
-        <div class="value-desc">ما حدا يتأخر لحاله. إذا واحد ما فهم، بنوقف وبنشرح لبعض.</div>
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+         signOut, onAuthStateChanged, updateProfile }
+  from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, onSnapshot, query, orderBy,
+         serverTimestamp, doc, setDoc, getDocs, deleteDoc, getDoc }
+  from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+// ── CONFIG ──
+const firebaseConfig = {
+  apiKey: "AIzaSyCdxxXwsbPamQGxnkV94Wpawp1JawP3LGM",
+  authDomain: "mynovaapp-2d496.firebaseapp.com",
+  projectId: "mynovaapp-2d496",
+  storageBucket: "mynovaapp-2d496.firebasestorage.app",
+  messagingSenderId: "357301361871",
+  appId: "1:357301361871:web:7cdef1ccb84451a67b6bba"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const auth  = getAuth(fbApp);
+const db    = getFirestore(fbApp);
+
+// ── STATE ──
+let currentUser = null;
+let chatUnsub   = null;
+let linksUnsub  = null;
+let selCatVal   = 'Python';
+let filterCat   = 'all';
+let allLinks    = [];
+
+// ── HELPERS ──
+const $  = id => document.getElementById(id);
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const ini = n  => (n||'?').slice(0,2).toUpperCase();
+const fmt = ts => {
+  if(!ts) return '';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleTimeString('ar',{hour:'2-digit',minute:'2-digit'});
+};
+const fmtDate = ts => {
+  if(!ts) return '';
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toLocaleDateString('ar');
+};
+
+// name→fake email
+const toEmail = name => name.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'') + '@codenova.app';
+
+// ── AUTH STATE ──
+onAuthStateChanged(auth, async user => {
+  $('loader').style.display = 'none';
+  if(user){
+    currentUser = user;
+    showApp();
+  } else {
+    currentUser = null;
+    showLoginPage();
+  }
+});
+
+// ── SHOW/HIDE ──
+function showLoginPage(){
+  $('loginPage').style.display  = 'flex';
+  $('app').style.display        = 'none';
+  if(chatUnsub)  { chatUnsub();  chatUnsub=null; }
+  if(linksUnsub) { linksUnsub(); linksUnsub=null; }
+}
+function showApp(){
+  $('loginPage').style.display = 'none';
+  const appEl = $('app');
+  appEl.style.display = 'flex';
+  $('topAv').textContent   = ini(currentUser.displayName);
+  $('topName').textContent = currentUser.displayName || currentUser.email;
+  subscribeChat();
+  subscribeLinks();
+  loadMembers();
+}
+
+// ── SWITCH TAB ──
+window.switchTab = tab => {
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>
+    b.classList.toggle('active',(tab==='login'&&i===0)||(tab==='register'&&i===1)));
+  $('loginForm').style.display    = tab==='login'    ? '' : 'none';
+  $('registerForm').style.display = tab==='register' ? '' : 'none';
+  $('lErr').textContent = $('rErr').textContent = '';
+};
+
+// ── LOGIN ──
+window.doLogin = async () => {
+  const name = $('lName').value.trim();
+  const pass = $('lPass').value;
+  if(!name||!pass){ $('lErr').textContent='❌ أدخل الاسم وكلمة المرور'; return; }
+  const btn = $('loginBtn');
+  btn.disabled = true; btn.innerHTML='جار الدخول... <span class="spin"></span>';
+  try {
+    await signInWithEmailAndPassword(auth, toEmail(name), pass);
+  } catch(e){
+    $('lErr').textContent = '❌ الاسم أو كلمة المرور غلط';
+    btn.disabled=false; btn.textContent='ادخل للتيم ←';
+  }
+};
+
+// ── REGISTER ──
+window.doRegister = async () => {
+  const name  = $('rName').value.trim();
+  const pass  = $('rPass').value;
+  const pass2 = $('rPass2').value;
+  const err   = $('rErr');
+  if(name.length<2){err.textContent='❌ الاسم قصير جداً'; return;}
+  if(pass.length<4){err.textContent='❌ كلمة المرور 4 أحرف على الأقل'; return;}
+  if(pass!==pass2){err.textContent='❌ كلمتا المرور مش متطابقتين'; return;}
+  const btn=$('regBtn');
+  btn.disabled=true; btn.innerHTML='جار التسجيل... <span class="spin"></span>';
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, toEmail(name), pass);
+    await updateProfile(cred.user,{ displayName: name });
+    // save member doc
+    await setDoc(doc(db,'members', cred.user.uid),{
+      name, uid: cred.user.uid,
+      joined: new Date().toLocaleDateString('ar'),
+      joinedTs: serverTimestamp()
+    });
+    // welcome message
+    await addDoc(collection(db,'messages'),{
+      text:`🎉 ${name} انضم لتيم CodeNova!`,
+      sender:'System', sys:true,
+      ts: serverTimestamp()
+    });
+  } catch(e){
+    const msg = e.code==='auth/email-already-in-use'?'❌ الاسم مأخوذ، جرب اسم ثاني':'❌ حدث خطأ، جرب مرة ثانية';
+    err.textContent=msg;
+    btn.disabled=false; btn.textContent='سجّل وادخل ←';
+  }
+};
+
+// ── LOGOUT ──
+window.doLogout = async () => { await signOut(auth); closeDrawer(); };
+
+// ── DRAWER ──
+window.toggleDrawer = () => {
+  const d=$('drawer'), o=$('drawerOverlay'), h=$('hamburger');
+  const open=d.classList.toggle('open');
+  o.classList.toggle('open',open);
+  h.classList.toggle('open',open);
+};
+window.closeDrawer = () => {
+  $('drawer').classList.remove('open');
+  $('drawerOverlay').classList.remove('open');
+  $('hamburger').classList.remove('open');
+};
+
+// ── PAGES ──
+window.showPage = page => {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.drawer-item').forEach(b=>b.classList.remove('active'));
+  $(`${page}Page`).classList.add('active');
+  $(`di-${page}`).classList.add('active');
+  if(page==='members') loadMembers();
+  closeDrawer();
+};
+
+// ══ CHAT ══
+function subscribeChat(){
+  const q = query(collection(db,'messages'), orderBy('ts','asc'));
+  chatUnsub = onSnapshot(q, snap => {
+    const el = $('chatMessages');
+    el.innerHTML = '<div class="sys-msg">— مرحبا بتيم CodeNova 🚀 —</div>';
+    snap.docs.forEach(d => {
+      const m = d.data();
+      if(m.sys){
+        el.innerHTML += `<div class="sys-msg">${esc(m.text)}</div>`;
+        return;
+      }
+      const own = m.uid === currentUser?.uid;
+      el.innerHTML += `
+        <div class="msg${own?' own':''}">
+          <div class="msg-av">${ini(m.sender)}</div>
+          <div class="msg-bubble">
+            ${!own?`<div class="msg-sender">${esc(m.sender)}</div>`:''}
+            <div class="msg-text">${esc(m.text)}</div>
+            <div class="msg-time">${fmt(m.ts)}</div>
+          </div>
+        </div>`;
+    });
+    el.scrollTop = el.scrollHeight;
+  });
+}
+
+window.sendMsg = async () => {
+  const inp  = $('chatInput');
+  const text = inp.value.trim();
+  if(!text || !currentUser) return;
+  const btn = $('sendBtn');
+  btn.disabled = true;
+  inp.value = ''; inp.style.height='42px';
+  try {
+    await addDoc(collection(db,'messages'),{
+      text,
+      sender: currentUser.displayName || currentUser.email,
+      uid:    currentUser.uid,
+      ts:     serverTimestamp()
+    });
+  } catch(e){ console.error(e); }
+  btn.disabled = false;
+};
+
+window.chatKey = e => {
+  if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendMsg(); }
+};
+window.autoGrow = el => {
+  el.style.height='42px';
+  el.style.height = Math.min(el.scrollHeight,110)+'px';
+};
+
+// ══ LINKS ══
+const catColors={ Python:'rgba(74,222,128,.11)', Git:'rgba(52,211,153,.1)', CS50:'rgba(245,158,11,.1)', ML:'rgba(167,139,250,.1)', 'أدوات':'rgba(96,165,250,.1)', 'أخرى':'rgba(148,163,184,.1)' };
+const catText  ={ Python:'#4ade80', Git:'#34d399', CS50:'#f59e0b', ML:'#a78bfa', 'أدوات':'#60a5fa', 'أخرى':'#94a3b8' };
+
+function subscribeLinks(){
+  const q = query(collection(db,'links'), orderBy('ts','desc'));
+  linksUnsub = onSnapshot(q, snap => {
+    allLinks = snap.docs.map(d=>({id:d.id, ...d.data()}));
+    renderLinks();
+  });
+}
+
+window.selCat = (btn, cat) => {
+  document.querySelectorAll('.cat-chip').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel'); selCatVal=cat;
+};
+
+window.addLink = async () => {
+  const title = $('lkTitle').value.trim();
+  const url   = $('lkUrl').value.trim();
+  const emoji = $('lkEmoji').value.trim() || '🔗';
+  const desc  = $('lkDesc').value.trim();
+  if(!title||!url){ alert('العنوان والرابط مطلوبين!'); return; }
+  const btn = $('addLinkBtn');
+  btn.disabled=true; btn.innerHTML='جار الحفظ... <span class="spin"></span>';
+  try {
+    await addDoc(collection(db,'links'),{
+      title, url, emoji, desc, cat:selCatVal,
+      by: currentUser.displayName||'عضو',
+      uid: currentUser.uid,
+      ts: serverTimestamp()
+    });
+    $('lkTitle').value=$('lkUrl').value=$('lkEmoji').value=$('lkDesc').value='';
+  } catch(e){ alert('حدث خطأ في الحفظ'); }
+  btn.disabled=false; btn.textContent='+ أضف الرابط';
+};
+
+window.deleteLink = async id => {
+  if(!confirm('تأكد الحذف؟')) return;
+  await deleteDoc(doc(db,'links',id));
+};
+
+window.filterLinks = (cat, btn) => {
+  document.querySelectorAll('.f-chip').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); filterCat=cat; renderLinks();
+};
+
+function renderLinks(){
+  const grid=$('linksGrid');
+  const list = filterCat==='all' ? allLinks : allLinks.filter(l=>l.cat===filterCat);
+  if(!list.length){
+    grid.innerHTML=`<div class="empty" style="grid-column:1/-1"><span class="emo">🔗</span><p>ما في روابط بعد!<br/>أضف أول رابط.</p></div>`;
+    return;
+  }
+  const canDel = l => currentUser && (l.uid===currentUser.uid);
+  grid.innerHTML=list.map(l=>`
+    <div class="link-card">
+      ${canDel(l)?`<button class="lc-del" onclick="deleteLink('${l.id}')">✕</button>`:''}
+      <div class="lc-top">
+        <div class="lc-icon" style="background:${catColors[l.cat]||catColors['أخرى']}">${esc(l.emoji)}</div>
+        <div>
+          <div class="lc-title">${esc(l.title)}</div>
+          <div class="lc-cat" style="color:${catText[l.cat]||catText['أخرى']}">${esc(l.cat)}</div>
+        </div>
       </div>
-
-      <div class="value-card reveal">
-        <span class="value-icon">🏗️</span>
-        <div class="value-title">نبني مشاريع حقيقية</div>
-        <div class="value-desc">ما بيكفي نحل تمارين — بنبني أشياء حقيقية نحطها في Portfolio.</div>
+      ${l.desc?`<div class="lc-desc">${esc(l.desc)}</div>`:''}
+      <div class="lc-foot">
+        <span class="lc-by">بواسطة ${esc(l.by)}</span>
+        <a class="lc-open" href="${esc(l.url)}" target="_blank" rel="noopener">فتح ↗</a>
       </div>
+    </div>`).join('');
+}
 
-      <div class="value-card reveal">
-        <span class="value-icon">📈</span>
-        <div class="value-title">تقدم مستمر</div>
-        <div class="value-desc">كل أسبوع خطوة. بطيء بس ثابت — أحسن من سريع وبينسى.</div>
-      </div>
+// ══ MEMBERS ══
+async function loadMembers(){
+  const grid=$('membersGrid');
+  grid.innerHTML=`<div class="empty"><span class="emo">⏳</span><p>جار التحميل...</p></div>`;
+  try {
+    const snap = await getDocs(query(collection(db,'members'), orderBy('joinedTs','asc')));
+    if(snap.empty){ grid.innerHTML=`<div class="empty"><span class="emo">👥</span><p>ما في أعضاء بعد.</p></div>`; return; }
+    grid.innerHTML=snap.docs.map((d,i)=>{
+      const m=d.data();
+      return `<div class="member-card">
+        <div class="mem-av">${ini(m.name)}</div>
+        <div class="mem-name">${esc(m.name)}</div>
+        <div class="mem-role" style="color:${i===0?'#f59e0b':'var(--accent)'}">${i===0?'// Founder':'// Member'}</div>
+        <div class="mem-joined">انضم: ${m.joined||''}</div>
+      </div>`;
+    }).join('');
+  } catch(e){ grid.innerHTML=`<div class="empty"><span class="emo">❌</span><p>خطأ في التحميل</p></div>`; }
+}
 
-      <div class="value-card reveal">
-        <span class="value-icon">💬</span>
-        <div class="value-title">نسأل ونشرح</div>
-        <div class="value-desc">ما في سؤال غبي. اللي بيشرح لغيره بيفهم أكتر من اللي بيحفظ لحاله.</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- JOIN -->
-  <section id="join">
-    <div class="cta-box reveal">
-      <div class="section-label" style="text-align:center; margin-bottom:16px;">// join us</div>
-      <h2 class="cta-title">مستعد تكون جزء من التيم؟</h2>
-      <p class="cta-desc">
-        CodeNova مش بس فريق تعلم — رحلة كاملة. 
-        معنا من Python لحتى وصلنا Machine Learning.
-      </p>
-      <a href="#" class="btn-primary" style="font-size:1.05rem; padding:16px 40px;">انضم هلق 🚀</a>
-    </div>
-  </section>
-
-  <!-- FOOTER -->
-  <footer>
-    <span class="footer-logo">[CodeNova]</span>
-    <span>نتعلم سوا · نبني سوا · نتقدم سوا 🚀</span>
-    <span style="font-family:'Space Mono',monospace; font-size:0.75rem; color:#374151;">2026</span>
-  </footer>
-
-  <script>
-    // Scroll reveal
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((e, i) => {
-        if (e.isIntersecting) {
-          setTimeout(() => e.target.classList.add('visible'), i * 80);
-        }
-      });
-    }, { threshold: 0.1 });
-
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-  </script>
+// enter key in login
+document.addEventListener('keydown', e=>{
+  if(e.key!=='Enter') return;
+  if($('loginForm').style.display!=='none' && document.activeElement.closest('#loginForm')) doLogin();
+  if($('registerForm').style.display!=='none' && document.activeElement.closest('#registerForm')) doRegister();
+});
+</script>
 </body>
 </html>
