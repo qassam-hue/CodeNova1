@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CodeNova – نتعلم سوا</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #080b12;
+      --surface: #0d1117;
+      --card: #111827;
+      --border: #1f2937;
+      --accent: #00f5d4;
+      --accent2: #7c3aed;
+      --accent3: #f59e0b;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --glow: rgba(0,245,212,0.15);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Cairo', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ── Noise overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* ── Ambient orbs ── */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb-1 { width: 500px; height: 500px; background: rgba(0,245,212,0.07); top: -150px; right: -100px; animation: drift 12s ease-in-out infinite alternate; }
+    .orb-2 { width: 400px; height: 400px; background: rgba(124,58,237,0.08); bottom: 100px; left: -100px; animation: drift 15s ease-in-out infinite alternate-reverse; }
+    .orb-3 { width: 300px; height: 300px; background: rgba(245,158,11,0.05); top: 50%; left: 50%; animation: drift 10s ease-in-out infinite alternate; }
+
+    @keyframes drift { from { transform: translate(0,0) scale(1); } to { transform: translate(40px, 30px) scale(1.1); } }
+
+    /* ── Nav ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 48px;
+      background: rgba(8,11,18,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'Space Mono', monospace;
+      font-size: 1.3rem;
+      color: var(--accent);
+      letter-spacing: -1px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-logo .bracket { color: var(--accent2); }
+
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+
+    /* ── Hero ── */
+    .hero {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,245,212,0.08);
+      border: 1px solid rgba(0,245,212,0.25);
+      border-radius: 999px;
+      padding: 6px 18px;
+      font-size: 0.8rem;
+      color: var(--accent);
+      margin-bottom: 32px;
+      animation: fadeUp 0.8s ease both;
+      font-family: 'Space Mono', monospace;
+    }
+
+    .hero-badge::before { content: '◉'; font-size: 0.6rem; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
+    .hero-title {
+      font-size: clamp(3rem, 10vw, 7rem);
+      font-weight: 900;
+      line-height: 1;
+      margin-bottom: 24px;
+      animation: fadeUp 0.9s ease 0.1s both;
+    }
+
+    .hero-title .cn {
+      font-family: 'Space Mono', monospace;
+      background: linear-gradient(135deg, var(--accent) 0%, #00b4d8 50%, var(--accent2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display: block;
+      letter-spacing: -3px;
+    }
+
+    .hero-title .ar {
+      font-size: clamp(1.2rem, 3vw, 2rem);
+      font-weight: 600;
+      color: var(--muted);
+      display: block;
+      margin-top: 8px;
+      font-family: 'Cairo', sans-serif;
+      -webkit-text-fill-color: var(--muted);
+      letter-spacing: 0;
+    }
+
+    .hero-desc {
+      max-width: 600px;
+      color: var(--muted);
+      font-size: 1.1rem;
+      line-height: 1.8;
+      margin-bottom: 48px;
+      animation: fadeUp 1s ease 0.2s both;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeUp 1s ease 0.3s both;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #080b12;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-decoration: none;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(0,245,212,0.4); }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-family: 'Cairo', sans-serif;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+      text-decoration: none;
+    }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── Scroll indicator ── */
+    .scroll-hint {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 0.75rem;
+      animation: fadeUp 1s ease 0.6s both;
+    }
+    .scroll-hint .arrow { animation: bounce 1.8s infinite; }
+    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
+
+    /* ── Sections ── */
+    section { position: relative; z-index: 1; }
+
+    .section-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 900;
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+
+    .section-sub {
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.7;
+      max-width: 500px;
+    }
+
+    /* ── Roadmap ── */
+    #roadmap {
+      padding: 100px 48px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .roadmap-header { margin-bottom: 64px; }
+
+    .roadmap-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .phase-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s, border-color 0.3s;
+      cursor: default;
+    }
+    .phase-card:hover { transform: translateY(-4px); border-color: var(--accent); }
+    .phase-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--glow), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .phase-card:hover::before { opacity: 1; }
+
+    .phase-num {
+      font-family: 'Space Mono', monospace;
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--border);
+      line-height: 1;
+      margin-bottom: 16px;
+    }
+    .phase-card:hover .phase-num { color: rgba(0,245,212,0.15); }
+
+    .phase-tag {
+      display: inline-block;
+      font-size: 0.72rem;
+      padding: 3px 12px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+      font-family: 'Space Mono', monospace;
+    }
+    .tag-active { background: rgba(0,245,212,0.1); color: var(--accent); border: 1px solid rgba(0,245,212,0.3); }
+    .tag-next { background: rgba(124,58,237,0.1); color: #a78bfa; border: 1px solid rgba(124,58,237,0.3); }
+    .tag-soon { background: rgba(100,116,139,0.1); color: var(--muted); border: 1px solid var(--border); }
+
+    .phase-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 8px; }
+    .phase-desc { color: var(--muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 16px; }
+
+    .phase-topics { display: flex; flex-wrap: wrap; gap: 6px; }
+    .topic-chip {
+      font-size: 0.75rem;
+      padding: 4px 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+    }
+
+    /* ── Stats bar ── */
+    .stats-bar {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 48px;
+      display: flex;
+      justify-content: center;
+      gap: 80px;
+      flex-wrap: wrap;
+    }
+
+    .stat { text-align: center; }
+    .stat-num {
+      font-family: 'Space Mono', monospace;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      display: block;
+    }
+    .stat-label { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
+
+    /* ── Values ── */
+    #values {
+      padding: 100px 48px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .values-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+      margin-top: 64px;
+    }
+
+    .value-card {
+      padding: 32px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: linear-gradient(135deg, var(--card), var(--surface));
+      transition: transform 0.3s;
+    }
+    .value-card:hover { transform: translateY(-3px); }
+
+    .value-icon { font-size: 2rem; margin-bottom: 16px; display: block; }
+    .value-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
+    .value-desc { color: var(--muted); font-size: 0.9rem; line-height: 1.6; }
+
+    /* ── CTA section ── */
+    #join {
+      padding: 120px 48px;
+      text-align: center;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .cta-box {
+      background: linear-gradient(135deg, rgba(0,245,212,0.05), rgba(124,58,237,0.05));
+      border: 1px solid rgba(0,245,212,0.2);
+      border-radius: 24px;
+      padding: 64px 48px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-box::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(0,245,212,0.08), transparent 70%);
+    }
+
+    .cta-title { font-size: 2rem; font-weight: 900; margin-bottom: 16px; }
+    .cta-desc { color: var(--muted); margin-bottom: 36px; line-height: 1.7; }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: gap;
+      color: var(--muted);
+      font-size: 0.85rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .footer-logo {
+      font-family: 'Space Mono', monospace;
+      color: var(--accent);
+      font-size: 1rem;
+    }
+
+    /* ── Terminal widget ── */
+    .terminal {
+      background: #0a0d14;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.82rem;
+      color: #a3e635;
+      margin: 48px auto 0;
+      max-width: 500px;
+      text-align: left;
+      direction: ltr;
+    }
+    .terminal .line { margin-bottom: 6px; }
+    .terminal .prompt { color: var(--accent); }
+    .terminal .comment { color: var(--muted); }
+    .terminal .keyword { color: #c084fc; }
+    .terminal .string { color: #fbbf24; }
+    .terminal .cursor {
+      display: inline-block;
+      width: 8px;
+      height: 14px;
+      background: var(--accent);
+      animation: blink 1s infinite;
+      vertical-align: middle;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      nav { padding: 16px 24px; }
+      .nav-links { display: none; }
+      #roadmap, #values, #join { padding: 64px 24px; }
+      .stats-bar { gap: 40px; padding: 40px 24px; }
+      footer { flex-direction: column; gap: 12px; text-align: center; }
+      .cta-box { padding: 40px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">
+      <span class="bracket">[</span>CodeNova<span class="bracket">]</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#roadmap">الخارطة</a></li>
+      <li><a href="#values">قيمنا</a></li>
+      <li><a href="#join">انضم</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge">نتعلم سوا · نتقدم سوا</div>
+
+    <h1 class="hero-title">
+      <span class="cn">CodeNova</span>
+      <span class="ar">فريق تعلّم تقني حقيقي</span>
+    </h1>
+
+    <p class="hero-desc">
+      من Python الأساسيات، لـ Algorithms، لـ Machine Learning —
+      رحلة واحدة، فريق واحد، بنبني المستقبل سوا.
+    </p>
+
+    <div class="hero-cta">
+      <a href="#roadmap" class="btn-primary">شوف الخارطة</a>
+      <a href="#join" class="btn-ghost">انضم للتيم</a>
+    </div>
+
+    <!-- Terminal widget -->
+    <div class="terminal">
+      <div class="line"><span class="prompt">$</span> python hello_codenova.py</div>
+      <div class="line"><span class="comment"># Welcome to the team 🚀</span></div>
+      <div class="line"><span class="keyword">print</span>(<span class="string">"نتعلم سوا، ننجح سوا"</span>)</div>
+      <div class="line" style="color:#e2e8f0; margin-top:4px;">→ نتعلم سوا، ننجح سوا <span class="cursor"></span></div>
+    </div>
+
+    <div class="scroll-hint">
+      <span>اكتشف أكثر</span>
+      <span class="arrow">↓</span>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats-bar reveal">
+    <div class="stat">
+      <span class="stat-num">6+</span>
+      <span class="stat-label">مراحل تعلّم</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">∞</span>
+      <span class="stat-label">مشاريع مشتركة</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">1</span>
+      <span class="stat-label">هدف: الذكاء الاصطناعي</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">100%</span>
+      <span class="stat-label">تعلّم جماعي</span>
+    </div>
+  </div>
+
+  <!-- ROADMAP -->
+  <section id="roadmap">
+    <div class="roadmap-header reveal">
+      <div class="section-label">// roadmap</div>
+      <h2 class="section-title">خارطة الرحلة</h2>
+      <p class="section-sub">مسار واضح من الصفر لحتى نوصل لـ Machine Learning خطوة بخطوة.</p>
+    </div>
+
+    <div class="roadmap-grid">
+      <div class="phase-card reveal">
+        <div class="phase-num">01</div>
+        <span class="phase-tag tag-active">▶ الآن</span>
+        <div class="phase-title">Python من الصفر</div>
+        <div class="phase-desc">نبدأ من المتغيرات لحتى نحكم الأساسيات كلها بشكل صح.</div>
+        <div class="phase-topics">
+          <span class="topic-chip">Variables</span>
+          <span class="topic-chip">Loops</span>
+          <span class="topic-chip">Functions</span>
+          <span class="topic-chip">Lists</span>
+          <span class="topic-chip">Dicts</span>
+        </div>
+      </div>
+
+      <div class="phase-card reveal">
+        <div class="phase-num">02</div>
+        <span class="phase-tag tag-next">⏳ قريبًا</span>
+        <div class="phase-title">OOP و Git</div>
+        <div class="phase-desc">نفهم البرمجة الكائنية ونتعلم كيف نشتغل بـ Team بشكل احترافي.</div>
+        <div class="phase-topics">
+          <span class="topic-chip">Classes</span>
+          <span class="topic-chip">Inheritance</span>
+          <span class="topic-chip">Git</span>
+          <span class="topic-chip">GitHub</span>
+        </div>
+      </div>
+
+      <div class="phase-card reveal">
+        <div class="phase-num">03</div>
+        <span class="phase-tag tag-soon">○ لاحقًا</span>
+        <div class="phase-title">CS50 و Algorithms</div>
+        <div class="phase-desc">نفهم علوم الكمبيوتر الحقيقية — الذاكرة، البحث، الترتيب، والتعقيد.</div>
+        <div class="phase-topics">
+          <span class="topic-chip">CS50</span>
+          <span class="topic-chip">Big O</span>
+          <span class="topic-chip">Sorting</span>
+          <span class="topic-chip">Trees</span>
+        </div>
+      </div>
+
+      <div class="phase-card reveal" style="border-color: rgba(245,158,11,0.2);">
+        <div class="phase-num">04</div>
+        <span class="phase-tag" style="background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);">🔥 الهدف الكبير</span>
+        <div class="phase-title">Machine Learning</div>
+        <div class="phase-desc">الوجهة النهائية — نبني نماذج ذكاء اصطناعي حقيقية مع بعض.</div>
+        <div class="phase-topics">
+          <span class="topic-chip">NumPy</span>
+          <span class="topic-chip">Pandas</span>
+          <span class="topic-chip">sklearn</span>
+          <span class="topic-chip">Neural Nets</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VALUES -->
+  <section id="values">
+    <div class="reveal">
+      <div class="section-label">// values</div>
+      <h2 class="section-title">ليش CodeNova مختلفة؟</h2>
+      <p class="section-sub">مش بس تعلم — بناء ثقافة وعقلية صح من البداية.</p>
+    </div>
+
+    <div class="values-grid">
+      <div class="value-card reveal">
+        <span class="value-icon">🤝</span>
+        <div class="value-title">نتعلم سوا</div>
+        <div class="value-desc">ما حدا يتأخر لحاله. إذا واحد ما فهم، بنوقف وبنشرح لبعض.</div>
+      </div>
+
+      <div class="value-card reveal">
+        <span class="value-icon">🏗️</span>
+        <div class="value-title">نبني مشاريع حقيقية</div>
+        <div class="value-desc">ما بيكفي نحل تمارين — بنبني أشياء حقيقية نحطها في Portfolio.</div>
+      </div>
+
+      <div class="value-card reveal">
+        <span class="value-icon">📈</span>
+        <div class="value-title">تقدم مستمر</div>
+        <div class="value-desc">كل أسبوع خطوة. بطيء بس ثابت — أحسن من سريع وبينسى.</div>
+      </div>
+
+      <div class="value-card reveal">
+        <span class="value-icon">💬</span>
+        <div class="value-title">نسأل ونشرح</div>
+        <div class="value-desc">ما في سؤال غبي. اللي بيشرح لغيره بيفهم أكتر من اللي بيحفظ لحاله.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- JOIN -->
+  <section id="join">
+    <div class="cta-box reveal">
+      <div class="section-label" style="text-align:center; margin-bottom:16px;">// join us</div>
+      <h2 class="cta-title">مستعد تكون جزء من التيم؟</h2>
+      <p class="cta-desc">
+        CodeNova مش بس فريق تعلم — رحلة كاملة. 
+        معنا من Python لحتى وصلنا Machine Learning.
+      </p>
+      <a href="#" class="btn-primary" style="font-size:1.05rem; padding:16px 40px;">انضم هلق 🚀</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="footer-logo">[CodeNova]</span>
+    <span>نتعلم سوا · نبني سوا · نتقدم سوا 🚀</span>
+    <span style="font-family:'Space Mono',monospace; font-size:0.75rem; color:#374151;">2026</span>
+  </footer>
+
+  <script>
+    // Scroll reveal
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((e, i) => {
+        if (e.isIntersecting) {
+          setTimeout(() => e.target.classList.add('visible'), i * 80);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
